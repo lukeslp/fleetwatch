@@ -56,6 +56,7 @@ from typing import Optional
 
 from ..config import ACTIVE_WINDOW, DONE_AFTER
 from ..models import SessionState, State, TodoItem
+from ..util import clean_command
 from .base import Adapter, SessionRef, Source
 
 # Codex nests rollouts as sessions/YYYY/MM/DD/rollout-*.jsonl. ``Source.glob``
@@ -321,8 +322,8 @@ class CodexAdapter(Adapter):
                     last_open_call = info
                     completed = False
                     if name in ("exec_command", "shell", "local_shell"):
-                        cmd = _short_cmd(arguments)
-                        last_doing = f"running: {cmd[:40]}" if cmd else "running a command"
+                        cmd = clean_command(_short_cmd(arguments))
+                        last_doing = f"running: {cmd}" if cmd else "running a command"
                     elif name == "apply_patch":
                         last_doing = "applying a patch"
                     else:
@@ -356,13 +357,13 @@ class CodexAdapter(Adapter):
             state = State.WAITING
             name = pending.get("name") or ""
             if name in ("exec_command", "shell", "local_shell"):
-                cmd = _short_cmd(pending.get("args", ""))
+                cmd = clean_command(_short_cmd(pending.get("args", "")))
                 needs = (
-                    f"waiting on command approval: {cmd[:40]}"
+                    f"waiting on command approval: {cmd}"
                     if cmd
                     else "waiting on command approval"
                 )
-                doing = f"awaiting approval: {cmd[:40]}" if cmd else "awaiting approval"
+                doing = f"awaiting approval: {cmd}" if cmd else "awaiting approval"
             elif name == "apply_patch":
                 needs = "waiting on patch approval"
                 doing = "awaiting patch approval"

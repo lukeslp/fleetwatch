@@ -22,6 +22,7 @@ from . import config
 from .adapters import all_adapters
 from .adapters.base import LocalSource, Source
 from .models import SessionState, State
+from .remote import parse_hosts
 from .summarize import Summarizer
 
 # Sort priority: the things that want you, first.
@@ -43,10 +44,14 @@ class Aggregator:
         self,
         source: Optional[Source] = None,
         summarizer: Optional[Summarizer] = None,
+        hosts: Optional[list] = None,
     ):
         self.source = source or LocalSource()
         self.adapters = all_adapters()
         self.summarizer = summarizer if summarizer is not None else Summarizer()
+        # Remote hosts watched over ssh. Any object with `.name` and `.fetch()`
+        # works (tests inject fakes); by default parsed from config.
+        self.hosts = hosts if hosts is not None else parse_hosts(config.REMOTE_HOSTS)
         self._states: dict[tuple, SessionState] = {}
         self._mtimes: dict[tuple, float] = {}
         self._lock = threading.Lock()
@@ -64,7 +69,14 @@ class Aggregator:
                 refs = []  # a broken adapter must never sink the whole scan
             for ref in refs:
                 key = (self.source.host, adapter.vendor, ref.session_id)
-                mtime = self.source.mtime(ref.path)
+                # Prefer the adapter's freshness hint (newest mtime across a
+                # multi-file session) so a change in any of the session's files
+                # is noticed, not just the primary transcript's.
+                mtime = (
+                    ref.mtime
+                    if ref.mtime is not None
+                    else self.source.mtime(ref.path)
+                )
 
                 # Skip files too old to care about without ever reading them —
                 # this is what keeps a refresh cheap when hundreds of stale
@@ -101,8 +113,40 @@ class Aggregator:
                     self._states[key] = state
                     self._mtimes[key] = mtime
 
+        self._fetch_remotes(seen)
         self._evict(seen, now)
         self._dispatch_summaries()
+
+    def _fetch_remotes(self, seen: set) -> None:
+        """Pull each remote host's JSON export and merge it in. An unreachable
+        host keeps its last-known sessions (marked seen so eviction spares them)
+        rather than blinking out of existence."""
+        for host in self.hosts:
+            try:
+                states, reachable = host.fetch()
+            except Exception:
+                states, reachable = [], False
+            if not reachable:
+                with self._lock:
+                    for key in self._states:
+                        if key[0] == host.name:
+                            seen.add(key)
+                continue
+            for st in states:
+                st.source = host.name  # always display under the host it came from
+                key = (host.name, st.vendor, st.session_id)
+                seen.add(key)
+                if not st.summary:
+                    prev = self._states.get(key)
+                    if prev and prev.summary and prev.last_activity == st.last_activity:
+                        st.summary = prev.summary
+                    else:
+                        cached = self.summarizer.cached(st)
+                        if cached:
+                            st.summary = cached
+                with self._lock:
+                    self._states[key] = st
+                    self._mtimes[key] = st.last_activity or 0.0
 
     def sessions(self) -> list[SessionState]:
         with self._lock:

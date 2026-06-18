@@ -27,7 +27,12 @@ def main(argv: "list[str] | None" = None) -> int:
     )
     parser.add_argument(
         "--vendors",
-        help="comma-separated subset of vendors to watch (default: claude,codex,grok)",
+        help="comma-separated subset of vendors to watch (default: claude,codex,grok,gemini)",
+    )
+    parser.add_argument(
+        "--hosts",
+        help="comma-separated remote hosts to watch over ssh: name or name=ssh_target "
+             "(e.g. dreamer=luke@dr.eamer.dev). 'local' is always included.",
     )
     args = parser.parse_args(argv)
 
@@ -36,10 +41,14 @@ def main(argv: "list[str] | None" = None) -> int:
         os.environ["FLEETWATCH_NO_MODEL"] = "1"
     if args.vendors:
         os.environ["FLEETWATCH_VENDORS"] = args.vendors
+    if args.hosts is not None:
+        os.environ["FLEETWATCH_HOSTS"] = args.hosts
 
     from .core import Aggregator
 
-    agg = Aggregator()
+    # --export-json describes THIS host only, so a remote pulling our export
+    # never recurses into our own configured hosts.
+    agg = Aggregator(hosts=[]) if args.export_json else Aggregator()
     agg.refresh()
 
     if args.export_json or args.once:

@@ -61,6 +61,7 @@ from typing import Optional
 
 from ..config import ACTIVE_WINDOW, DONE_AFTER
 from ..models import SessionState, State, TodoItem
+from ..util import clean_command
 from .base import Adapter, SessionRef, Source
 
 PROJECTS_GLOB = "~/.claude/projects/*/*.jsonl"
@@ -156,8 +157,8 @@ def _doing_from_tool_use(block: dict) -> str:
     if name == "Read":
         return f"reading {_basename(inp.get('file_path'))}".rstrip()
     if name == "Bash":
-        cmd = (inp.get("command") or "").strip().replace("\n", " ")
-        return f"running: {cmd[:40]}" if cmd else "running a command"
+        cmd = clean_command(inp.get("command") or "")
+        return f"running: {cmd}" if cmd else "running a command"
     if name in ("Task", "Agent"):
         return "delegating to subagent"
     if name in ("TodoWrite", "TaskCreate", "TaskUpdate"):

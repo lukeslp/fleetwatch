@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fleetwatch"
-version = "0.1.0"
-description = "One screen for every terminal coding session you have running, across Claude Code, Codex, and Grok"
+version = "0.2.0"
+description = "One screen for every terminal coding session you have running, across Claude Code, Codex, Grok, and Gemini"
 requires-python = ">=3.10"
 dependencies = [
     "textual>=0.60",

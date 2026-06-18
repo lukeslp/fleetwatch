@@ -12,6 +12,7 @@ _REGISTRY = {
     "claude": ("claude", "ClaudeAdapter"),
     "codex": ("codex", "CodexAdapter"),
     "grok": ("grok", "GrokAdapter"),
+    "gemini": ("gemini", "GeminiAdapter"),
 }
 
 

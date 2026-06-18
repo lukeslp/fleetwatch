@@ -34,6 +34,10 @@ USE_MODEL = os.environ.get("FLEETWATCH_NO_MODEL", "") == ""
 # Which vendor adapters to run.
 ENABLED_VENDORS = [
     v.strip()
-    for v in os.environ.get("FLEETWATCH_VENDORS", "claude,codex,grok").split(",")
+    for v in os.environ.get("FLEETWATCH_VENDORS", "claude,codex,grok,gemini").split(",")
     if v.strip()
 ]
+
+# Remote hosts to watch over ssh, comma-separated. Each entry is `name` or
+# `name=ssh_target` (e.g. "dreamer" or "dreamer=luke@dr.eamer.dev").
+REMOTE_HOSTS = os.environ.get("FLEETWATCH_HOSTS", "")

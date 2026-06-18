@@ -1,0 +1,5 @@
+{"sessionId": "28f49277-1111-4abc-9000-aaaaaaaaaaaa", "projectHash": "aa11bb22cc33dd44ee55ff66aa77bb88cc99dd00ee11ff22aa33bb44cc55dd66", "startTime": "2026-06-15T22:15:00.000Z", "lastUpdated": "2026-06-15T22:16:00.000Z", "kind": "main"}
+{"id": "e1111111-0000-0000-0000-000000000001", "timestamp": "2026-06-15T22:15:30.000Z", "type": "user", "content": [{"text": "add a planet orbit animation"}], "displayContent": "add a planet orbit animation"}
+{"id": "f2222222-0000-0000-0000-000000000002", "timestamp": "2026-06-15T22:15:45.000Z", "type": "gemini", "content": "Sure, I will add an orbit animation to the renderer.", "thoughts": [], "tokens": {"input": 800, "output": 12, "cached": 0, "thoughts": 0, "tool": 0, "total": 812}, "model": "gemini-3-flash-preview"}
+{"id": "e3333333-0000-0000-0000-000000000003", "timestamp": "2026-06-15T22:16:00.000Z", "type": "user", "content": [{"text": "make it smoother"}], "displayContent": "make it smoother"}
+{"id": "f4444444-0000-0000-0000-000000000004", "timestamp": "2026-06-15T22:16:05.000Z", "type": "gemini", "content": "", "thoughts": [], "tokens": {"input": 900, "output": 0, "cached":

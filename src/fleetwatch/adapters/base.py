@@ -25,6 +25,11 @@ class SessionRef:
     path: str                   # the primary transcript / history file
     session_id: str
     cwd: Optional[str] = None   # decoded working directory when known
+    mtime: Optional[float] = None  # freshness hint: newest mtime across a
+    #                                multi-file session. When set, the aggregator
+    #                                uses it instead of the primary file's mtime,
+    #                                so a change in any of the session's files
+    #                                (e.g. Grok's events.jsonl) is not missed.
 
 
 class Source(ABC):

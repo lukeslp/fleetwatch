@@ -1,0 +1,6 @@
+[
+  {"sessionId": "1276a803-80c7-46b0-8d55-6610b65d0618", "messageId": 0, "type": "user", "message": "/model", "timestamp": "2026-06-13T20:01:11.549Z"},
+  {"sessionId": "1276a803-80c7-46b0-8d55-6610b65d0618", "messageId": 1, "type": "user", "message": "/init and review", "timestamp": "2026-06-13T20:01:27.148Z"},
+  {"sessionId": "1276a803-80c7-46b0-8d55-6610b65d0618", "messageId": 2, "type": "user", "message": "what recommendations do you have", "timestamp": "2026-06-13T20:04:28.538Z"},
+  {"sessionId": "1276a803-80c7-46b0-8d55-6610b65d0618", "messageId": 3, "type": "user", "message": "make a GEMINI_NEXT_STEPS.md", "timestamp": "2026-06-13T20:08:57.000Z"}
+]

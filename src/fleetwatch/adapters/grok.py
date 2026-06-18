@@ -189,7 +189,36 @@ class GrokAdapter(Adapter):
             )
             by_cwd[cwd] = SessionRef(path=history_path, session_id=sid, cwd=cwd)
 
-        return list(by_cwd.values())
+        refs = list(by_cwd.values())
+        # Stamp each ref with a freshness hint that spans ALL of the session's
+        # files. Without this the aggregator keys on prompt_history.jsonl alone
+        # and misses an idle->waiting transition that only touches events.jsonl.
+        for r in refs:
+            r.mtime = self._freshness(source, r)
+        return refs
+
+    def _session_paths(self, cwd: str, session_id: str) -> list[str]:
+        """The files that together make up one Grok session."""
+        encoded = self._encode_for_path(cwd)
+        base = f"{GROK_HOME}/sessions/{encoded}"
+        sdir = f"{base}/{session_id}"
+        return [
+            f"{base}/prompt_history.jsonl",
+            f"{sdir}/events.jsonl",
+            f"{sdir}/summary.json",
+            f"{sdir}/chat_history.jsonl",
+        ]
+
+    def _freshness(self, source: Source, ref: SessionRef) -> float:
+        """Newest mtime across all of a session's files (its real activity)."""
+        cwd = ref.cwd or _decode_cwd(_encoded_dir_name(ref.path))
+        newest = 0.0
+        for p in self._session_paths(cwd, ref.session_id):
+            if source.exists(p):
+                t = source.mtime(p)
+                if t > newest:
+                    newest = t
+        return newest or source.mtime(ref.path)
 
     # ---------------------------------------------------------------------- read
     def read(
@@ -217,21 +246,16 @@ class GrokAdapter(Adapter):
         now = time.time()
         cwd = ref.cwd or _decode_cwd(_encoded_dir_name(ref.path))
 
-        # Recency: newest of the files we know about for this session. The
-        # prompt_history mtime is the floor; events/summary may be fresher.
         encoded = self._encode_for_path(cwd)
         session_dir = f"{GROK_HOME}/sessions/{encoded}/{ref.session_id}"
         events_path = f"{session_dir}/events.jsonl"
         summary_path = f"{session_dir}/summary.json"
         chat_path = f"{session_dir}/chat_history.jsonl"
 
-        mtimes = [source.mtime(ref.path)]
-        for p in (events_path, summary_path, chat_path):
-            if source.exists(p):
-                mtimes.append(source.mtime(p))
-        last_activity = max(mtimes) if mtimes else 0.0
-        if not last_activity:
-            last_activity = source.mtime(ref.path)
+        # Recency is computed live (newest mtime across all of this session's
+        # files) so read() is always honest. The aggregator separately uses the
+        # discover()-stamped ref.mtime for its change-detection cache.
+        last_activity = self._freshness(source, ref)
         recency = now - last_activity if last_activity else float("inf")
 
         # --- last user prompt (from prompt_history; fall back to chat_history) ---

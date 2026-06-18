@@ -70,6 +70,7 @@ fleetwatch --once                # one text snapshot, then exit
 fleetwatch --export-json         # machine-readable snapshot (scripting, remote hosts)
 fleetwatch --no-model            # heuristics only, no network
 fleetwatch --vendors claude,codex   # watch a subset
+fleetwatch --hosts dreamer=luke@dr.eamer.dev   # also watch a VPS over ssh
 ```
 
 In the dashboard: `q` quit, `r` refresh now, `s` summarize the selected session,
@@ -83,6 +84,10 @@ the last exchange for whichever session is selected.
 | Claude Code | `~/.claude/projects/<cwd>/<uuid>.jsonl` |
 | Codex | `~/.codex/sessions/**/rollout-*.jsonl` |
 | Grok | `~/.grok/sessions/<cwd>/` (history + per-session events) |
+| Gemini | `~/.gemini/tmp/<project>/chats/*.jsonl` |
+
+Gemini CLI has no human-approval gate, so its sessions report active, idle, and
+done but never `waiting`. There is no on-disk "blocked on you" signal to read.
 
 ## How it works
 
@@ -108,15 +113,23 @@ All optional, via environment variables:
 | `FLEETWATCH_MAX_AGE` | `259200` | drop sessions older than this (3 days) |
 | `FLEETWATCH_REFRESH` | `2` | dashboard refresh interval, seconds |
 | `FLEETWATCH_MODEL` | `claude-haiku-4-5-20251001` | summary model |
-| `FLEETWATCH_VENDORS` | `claude,codex,grok` | which CLIs to watch |
+| `FLEETWATCH_VENDORS` | `claude,codex,grok,gemini` | which CLIs to watch |
+| `FLEETWATCH_HOSTS` | unset | remote hosts over ssh (`name` or `name=ssh_target`, comma-separated) |
 | `FLEETWATCH_NO_MODEL` | unset | set to `1` to disable summaries |
+
+## Watching other machines
+
+`fleetwatch --hosts dreamer=luke@dr.eamer.dev` adds a remote host. Each refresh
+runs one `ssh <host> fleetwatch --export-json`, so the remote normalizes its own
+sessions and hands back the result: one command per host, the conversation
+content stays on the channel you already trust, and a host that goes unreachable
+goes stale rather than vanishing from the board. The remote just needs
+`fleetwatch` on its `PATH`.
 
 ## What is next
 
-Remote hosts. The session record is already JSON-serializable and adapters read
-through a `Source` abstraction, so watching a VPS (over SSH, or by having each
-host export JSON to one place) drops in without reworking the core. Gemini and
-Cursor adapters are the same shape and can follow.
+Desktop notifications for the sessions that need you, an optional Cursor adapter,
+and a PyPI release once summaries move behind an opt-in extra.
 
 ## License
 
