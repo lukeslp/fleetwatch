@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fleetwatch"
+version = "0.1.0"
+description = "One screen for every terminal coding session you have running, across Claude Code, Codex, and Grok"
+requires-python = ">=3.10"
+dependencies = [
+    "textual>=0.60",
+    "anthropic>=0.40",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+fleetwatch = "fleetwatch.cli:main"
+fw = "fleetwatch.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
