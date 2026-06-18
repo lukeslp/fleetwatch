@@ -287,9 +287,36 @@ class FleetApp(App):
     def _show_detail(self, index: int) -> None:
         panel = self.query_one("#detail", DetailPanel)
         if 0 <= index < len(self._rows):
-            panel.show_session(self._rows[index])
+            s = self._rows[index]
+            panel.show_session(s)
+            self._ensure_summary(s)
         else:
             panel.show_placeholder()
+
+    def _ensure_summary(self, s: SessionState) -> None:
+        """Generate a real plain-language summary for the session being viewed,
+        so the detail panel shows a sentence rather than the raw ``doing`` line.
+
+        Skipped for ACTIVE sessions (their live ``doing`` is the freshest signal)
+        and a no-op once a summary is cached, so browsing costs at most one model
+        call per distinct idle/done/waiting session. The summary lands in the
+        background and appears on the next refresh tick.
+        """
+        if s.summary or s.state == State.ACTIVE:
+            return
+        request = getattr(self._agg, "request_summary", None)
+        if not callable(request):
+            return
+        try:
+            request(s.key, force=False)
+        except TypeError:
+            # Aggregator without the force kwarg (older/fake): fall back.
+            try:
+                request(s.key)
+            except Exception:
+                pass
+        except Exception:
+            pass
 
     def _selected(self) -> Optional[SessionState]:
         table = self.query_one("#sessions", DataTable)

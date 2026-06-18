@@ -46,8 +46,9 @@ one becomes `waiting`.
 Every row carries a quick heuristic line for free. Sessions that need your
 attention also get a one-sentence status written by Claude Haiku, so you read
 "waiting for you to approve a destructive build command" instead of decoding raw
-state. Summaries run in the background, are cached per session, and only fire for
-sessions that need attention, so an idle fleet costs nothing.
+state. Summaries run in the background, are cached per session, and fire for sessions
+that need attention plus whichever one you select in the dashboard, so a fleet
+you are not looking at costs nothing.
 
 Run fully offline with `--no-model` (or `FLEETWATCH_NO_MODEL=1`) and you keep the
 heuristic lines.

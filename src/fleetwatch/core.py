@@ -168,7 +168,7 @@ class Aggregator:
         out["total"] = len(items)
         return out
 
-    def request_summary(self, key) -> None:
+    def request_summary(self, key, force: bool = True) -> None:
         key = tuple(key)
         with self._lock:
             st = self._states.get(key)
@@ -182,7 +182,7 @@ class Aggregator:
                         st = s
                         break
         if st is not None:
-            self.summarizer.request(st, force=True)
+            self.summarizer.request(st, force=force)
 
     # --- internals ---
 
