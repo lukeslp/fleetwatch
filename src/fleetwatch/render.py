@@ -84,13 +84,21 @@ def render_snapshot(
         lines.append("No active sessions.")
         return "\n".join(lines)
 
+    # Only show a host column when watching more than one source, so the
+    # single-machine view stays uncluttered.
+    sources = {s.source for s in sessions}
+    show_host = len(sources) > 1
+
     # Column widths sized to content, with sane caps.
+    host_w = min(10, max(4, *(len(s.source) for s in sessions))) if show_host else 0
     vendor_w = max(6, *(len(s.vendor) for s in sessions))
     project_w = min(24, max(7, *(len(s.project) for s in sessions)))
     state_w = max(len(str(s.state)) for s in sessions)
     state_w = max(state_w, 5)
 
+    host_head = f"{'HOST':<{host_w}}  " if show_host else ""
     header_row = (
+        f"{host_head}"
         f"{'VENDOR':<{vendor_w}}  "
         f"{'PROJECT':<{project_w}}  "
         f"{'STATE':<{state_w}}  "
@@ -108,7 +116,9 @@ def render_snapshot(
         # Prefer the human-facing "needs" reason when attention is wanted,
         # otherwise the adapter's "doing" one-liner.
         what = s.needs if (s.needs_attention and s.needs) else s.doing
+        host_cell = f"{_truncate(s.source, host_w):<{host_w}}  " if show_host else ""
         lines.append(
+            f"{host_cell}"
             f"{_truncate(s.vendor, vendor_w):<{vendor_w}}  "
             f"{_truncate(s.project, project_w):<{project_w}}  "
             f"{str(s.state):<{state_w}}  "

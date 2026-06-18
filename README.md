@@ -124,7 +124,8 @@ runs one `ssh <host> fleetwatch --export-json`, so the remote normalizes its own
 sessions and hands back the result: one command per host, the conversation
 content stays on the channel you already trust, and a host that goes unreachable
 goes stale rather than vanishing from the board. The remote just needs
-`fleetwatch` on its `PATH`.
+`fleetwatch` on its `PATH`. Once more than one host is in view, a `HOST` column
+appears so you can tell which machine each session is on.
 
 ## What is next
 

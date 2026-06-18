@@ -185,6 +185,9 @@ class FleetApp(App):
     def __init__(self, agg) -> None:
         super().__init__()
         self._agg = agg
+        # Show a host column only when remote hosts are being watched, so the
+        # single-machine view stays uncluttered.
+        self._show_host = bool(getattr(agg, "hosts", None))
         # Rows in display order; index aligns with DataTable row order. Keys are
         # the session.key tuple so we can re-select the same session after a
         # refresh even if its position changed.
@@ -203,7 +206,8 @@ class FleetApp(App):
 
     def on_mount(self) -> None:
         table = self.query_one("#sessions", DataTable)
-        for col in self._COLUMNS:
+        columns = (("host",) + self._COLUMNS) if self._show_host else self._COLUMNS
+        for col in columns:
             table.add_column(col, key=col)
         self.query_one("#detail", DetailPanel).show_placeholder()
         self._reload(initial=True)
@@ -268,14 +272,17 @@ class FleetApp(App):
         state_cell = Text(str(s.state), style=_state_color(s.state))
         bang = Text("!", style="bold red") if s.needs_attention else Text("")
         doing = s.needs if (s.needs_attention and s.needs) else s.doing
-        return (
+        cells = [
             s.vendor,
             s.project,
             state_cell,
             humanize_age(s.last_activity, now),
             bang,
             _excerpt(doing, 80),
-        )
+        ]
+        if self._show_host:
+            cells.insert(0, s.source)
+        return tuple(cells)
 
     def _show_detail(self, index: int) -> None:
         panel = self.query_one("#detail", DetailPanel)
