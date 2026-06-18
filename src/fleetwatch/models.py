@@ -100,8 +100,9 @@ class SessionState:
             needs=d.get("needs"),
             summary=d.get("summary"),
             todos=[
-                TodoItem(text=t["text"], status=t.get("status", "pending"))
+                TodoItem(text=str(t.get("text", "")), status=t.get("status", "pending"))
                 for t in d.get("todos", [])
+                if isinstance(t, dict) and t.get("text")
             ],
             last_user=d.get("last_user", ""),
             last_agent=d.get("last_agent", ""),

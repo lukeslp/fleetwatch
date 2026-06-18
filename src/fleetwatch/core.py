@@ -169,8 +169,18 @@ class Aggregator:
         return out
 
     def request_summary(self, key) -> None:
+        key = tuple(key)
         with self._lock:
-            st = self._states.get(tuple(key))
+            st = self._states.get(key)
+            if st is None:
+                # Stored entries are keyed by the discover-time id, but a caller
+                # (the TUI) passes the session's canonical key — adapters such as
+                # Codex/Gemini rewrite session_id from file contents. Fall back to
+                # matching on the state's own key so manual summaries never no-op.
+                for s in self._states.values():
+                    if s.key == key:
+                        st = s
+                        break
         if st is not None:
             self.summarizer.request(st, force=True)
 

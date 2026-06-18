@@ -23,7 +23,6 @@ from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
-from textual.coordinate import Coordinate
 from textual.widgets import DataTable, Footer, Header, Static
 
 from . import config
