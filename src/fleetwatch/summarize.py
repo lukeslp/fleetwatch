@@ -119,7 +119,11 @@ class Summarizer:
         parts = [
             b.text for b in msg.content if getattr(b, "type", None) == "text"
         ]
-        out = " ".join(parts).strip()
+        # Collapse to a single clean line: a model that returns multiple text
+        # blocks or internal newlines must never read as concatenated summaries.
+        out = " ".join(" ".join(parts).split()).strip()
+        if len(out) > 240:
+            out = out[:239].rstrip() + "…"
         return out or None
 
     def _build_prompt(self, st: SessionState) -> str:
