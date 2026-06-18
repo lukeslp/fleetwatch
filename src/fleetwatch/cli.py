@@ -26,6 +26,10 @@ def main(argv: "list[str] | None" = None) -> int:
         help="disable model summaries; heuristics only",
     )
     parser.add_argument(
+        "--summarize-all", action="store_true",
+        help="full sweep: summarize every session before printing (pairs with --export-json)",
+    )
+    parser.add_argument(
         "--vendors",
         help="comma-separated subset of vendors to watch (default: claude,codex,grok,gemini)",
     )
@@ -52,9 +56,11 @@ def main(argv: "list[str] | None" = None) -> int:
     agg.refresh()
 
     if args.export_json or args.once:
-        # One-shot modes have no refresh loop, so give background summaries a
-        # moment to land before we print.
-        agg.summarizer.drain()
+        # One-shot modes have no refresh loop, so optionally sweep, then give
+        # background summaries a moment to land before we print.
+        if args.summarize_all:
+            agg.summarize_all()
+        agg.summarizer.drain(timeout=30 if args.summarize_all else 6)
 
     if args.export_json:
         print(json.dumps([s.to_dict() for s in agg.sessions()], indent=2))

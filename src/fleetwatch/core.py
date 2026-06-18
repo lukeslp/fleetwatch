@@ -184,6 +184,17 @@ class Aggregator:
         if st is not None:
             self.summarizer.request(st, force=force)
 
+    def summarize_all(self, force: bool = False) -> int:
+        """Full sweep: request a plain-language summary for every current
+        session. Cached summaries are reused unless ``force``. Returns the
+        number of sessions swept (0 when the model is disabled)."""
+        if not self.summarizer.enabled:
+            return 0
+        sessions = self.sessions()
+        for st in sessions:
+            self.summarizer.request(st, force=force)
+        return len(sessions)
+
     # --- internals ---
 
     def _reage(self, st: SessionState, now: float) -> None:

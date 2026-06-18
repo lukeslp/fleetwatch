@@ -72,11 +72,13 @@ fleetwatch --export-json         # machine-readable snapshot (scripting, remote 
 fleetwatch --no-model            # heuristics only, no network
 fleetwatch --vendors claude,codex   # watch a subset
 fleetwatch --hosts dreamer=luke@dr.eamer.dev   # also watch a VPS over ssh
+fleetwatch --export-json --summarize-all   # full report: summarize every session
 ```
 
 In the dashboard: `q` quit, `r` refresh now, `s` summarize the selected session,
-arrows or `j`/`k` to move, and the detail panel shows the summary, the plan, and
-the last exchange for whichever session is selected.
+`S` summarize the whole fleet, arrows or `j`/`k` to move. Selecting a session
+also summarizes it on its own, and the detail panel shows the summary, the plan,
+and the last exchange for whichever session is selected.
 
 ## Supported CLIs
 

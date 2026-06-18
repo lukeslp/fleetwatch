@@ -176,6 +176,7 @@ class FleetApp(App):
         Binding("q", "quit", "Quit"),
         Binding("r", "refresh_now", "Refresh"),
         Binding("s", "summary", "Summarize"),
+        Binding("S", "summarize_all", "Summ. all"),
         Binding("j", "cursor_down", "Down", show=False),
         Binding("k", "cursor_up", "Up", show=False),
     ]
@@ -352,6 +353,22 @@ class FleetApp(App):
                 request(s.key)
             except Exception:
                 pass
+
+    def action_summarize_all(self) -> None:
+        fn = getattr(self._agg, "summarize_all", None)
+        if not callable(fn):
+            return
+        try:
+            n = fn()
+        except Exception:
+            n = 0
+        try:
+            if n:
+                self.notify(f"Summarizing {n} session{'s' if n != 1 else ''}…")
+            else:
+                self.notify("Summaries are off (no API key).", severity="warning")
+        except Exception:
+            pass
 
     def action_cursor_down(self) -> None:
         table = self.query_one("#sessions", DataTable)
