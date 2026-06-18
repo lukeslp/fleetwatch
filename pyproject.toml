@@ -4,16 +4,36 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fleetwatch"
-version = "0.3.0"
+version = "0.3.1"
 description = "One screen for every terminal coding session you have running, across Claude Code, Codex, Grok, and Gemini"
+readme = "README.md"
 requires-python = ">=3.10"
+authors = [{ name = "Luke Steuber", email = "luke@lukesteuber.com" }]
+keywords = ["cli", "tui", "dashboard", "claude-code", "codex", "coding-agents", "monitoring"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+]
 dependencies = [
     "textual>=0.60",
-    "anthropic>=0.40",
 ]
 
 [project.optional-dependencies]
+# Plain-language summaries call Claude Haiku. Kept optional so a bare install
+# never pulls the SDK or spends tokens; opt in with: pip install "fleetwatch[summaries]"
+summaries = ["anthropic>=0.40"]
 dev = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://github.com/lukeslp/fleetwatch"
+Repository = "https://github.com/lukeslp/fleetwatch"
+Issues = "https://github.com/lukeslp/fleetwatch/issues"
 
 [project.scripts]
 fleetwatch = "fleetwatch.cli:main"

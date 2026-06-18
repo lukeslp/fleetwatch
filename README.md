@@ -2,25 +2,24 @@
 
 One screen for every terminal coding session you have running.
 
-If you keep more than one coding CLI going at once (Claude Code in one window,
-Codex in another, Grok in a third, some local and some on a server), fleetwatch
-gives you a single live dashboard of what they are all doing and which ones are
-waiting on you.
-
-It reads each tool's own session files on disk, read-only. There is nothing to
-install into the other tools, no daemon, no hooks. If a CLI writes a transcript,
-fleetwatch can watch it.
+fleetwatch watches the coding CLIs you already run (Claude Code, Codex, Grok,
+Gemini) and shows a single live dashboard of what each session is doing and which
+ones are waiting on you. It reads each tool's own session files on disk,
+read-only. There is nothing to install into those tools, no daemon, no hooks. If
+a CLI writes a transcript, fleetwatch can watch it.
 
 ```
-fleetwatch  17:18:43  active 1  waiting 0  idle 2  done 7  (total 10)
+fleetwatch  17:18:43  active 1  waiting 1  idle 2  done 7  (total 11)
 
-VENDOR  PROJECT     STATE   IDLE  !  WHAT
------------------------------------------
-claude  orrery      active    3s     editing PhaseSpaceCoordinator.swift
-claude  bipolar     waiting  40s  !  waiting for you to approve: rm -rf build
-codex   alt-text    idle      4m     finished a turn
-grok    hivescape   done      2h
+HOST     VENDOR  PROJECT     STATE    IDLE  !  WHAT
+local    claude  orrery      active     3s     editing PhaseSpaceCoordinator.swift
+local    claude  bipolar     waiting   40s  !  waiting for you to approve: rm -rf build
+dreamer  codex   storyblocks idle       4m     finished a turn
+dreamer  gemini  hivescape   done       2h     responding
 ```
+
+Status: early, but in daily use across a local Mac and a VPS. Current release
+`0.3.x`.
 
 ## What it tracks
 
@@ -41,27 +40,20 @@ Codex command awaiting approval, a Grok `permission_requested` event with no
 resolution. A session that is genuinely mid-tool stays `active`; only a stalled
 one becomes `waiting`.
 
-## Plain-language summaries
-
-Every row carries a quick heuristic line for free. Sessions that need your
-attention also get a one-sentence status written by Claude Haiku, so you read
-"waiting for you to approve a destructive build command" instead of decoding raw
-state. Summaries run in the background, are cached per session, and fire for sessions
-that need attention plus whichever one you select in the dashboard, so a fleet
-you are not looking at costs nothing.
-
-Run fully offline with `--no-model` (or `FLEETWATCH_NO_MODEL=1`) and you keep the
-heuristic lines.
-
 ## Install
 
+Not on PyPI yet. Install from source:
+
 ```sh
+git clone https://github.com/lukeslp/fleetwatch
 cd fleetwatch
 python3 -m venv .venv
-.venv/bin/pip install -e .
+.venv/bin/pip install -e .                 # dashboard only: free, no network
+.venv/bin/pip install -e ".[summaries]"    # add plain-language summaries (Claude Haiku)
 ```
 
-Python 3.10 or newer. For summaries, set `ANTHROPIC_API_KEY`.
+Python 3.10 or newer. The install puts `fleetwatch` and `fw` on the PATH inside
+the venv; activate the venv, or symlink `.venv/bin/fleetwatch` onto your PATH.
 
 ## Usage
 
@@ -71,7 +63,7 @@ fleetwatch --once                # one text snapshot, then exit
 fleetwatch --export-json         # machine-readable snapshot (scripting, remote hosts)
 fleetwatch --no-model            # heuristics only, no network
 fleetwatch --vendors claude,codex   # watch a subset
-fleetwatch --hosts dreamer=luke@dr.eamer.dev   # also watch a VPS over ssh
+fleetwatch --hosts dreamer=user@host   # also watch another machine over ssh
 fleetwatch --export-json --summarize-all   # full report: summarize every session
 ```
 
@@ -92,6 +84,47 @@ and the last exchange for whichever session is selected.
 Gemini CLI has no human-approval gate, so its sessions report active, idle, and
 done but never `waiting`. There is no on-disk "blocked on you" signal to read.
 
+Each adapter is small and isolated, so adding a vendor is a contained job. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Summaries (optional)
+
+Every row carries a quick heuristic line for free. On top of that, fleetwatch can
+write a one-sentence plain-language status with Claude Haiku.
+
+Summaries turn on automatically when the `summaries` extra is installed and
+`ANTHROPIC_API_KEY` is set. They run for sessions that need attention and for
+whichever session you select, in the background, cached per session, so a fleet
+you are not looking at costs nothing. Press `S` (or run `--summarize-all`) to
+sweep every session at once.
+
+Without the extra or the key, fleetwatch never makes a network call and shows the
+heuristic line instead. `--no-model` forces heuristics-only even when summaries
+are available.
+
+## Watching other machines
+
+`fleetwatch --hosts dreamer=user@host` adds a remote host. Each refresh runs one
+`ssh <host> fleetwatch --export-json`, so the remote normalizes its own sessions
+and hands back the result: one command per host, the conversation content stays
+on the channel you already trust, and a host that goes unreachable goes stale
+rather than vanishing from the board. The remote just needs `fleetwatch` on its
+`PATH`. Once more than one host is in view, a `HOST` column appears so you can
+tell which machine each session is on.
+
+## Privacy
+
+fleetwatch reads your CLIs' session files read-only and never writes to them. The
+dashboard displays short excerpts (the last user and agent messages, the plan)
+locally.
+
+A summary is the only thing that ever leaves your machine, and only when you have
+opted into summaries (the `summaries` extra plus `ANTHROPIC_API_KEY`): a short
+slice of one session's recent activity is sent to Claude Haiku to write a single
+sentence. With `--no-model`, or without the extra or key, nothing is sent
+anywhere. Remote hosts are read over your own ssh connection; their session
+content travels only over that channel.
+
 ## How it works
 
 Four small layers, each independently testable:
@@ -101,8 +134,8 @@ Four small layers, each independently testable:
    transcripts.
 2. **The aggregator** polls adapters by file modification time and reads only a
    bounded tail of each transcript, so a 25 MB session file is never read whole.
-   It sorts the fleet needs-first.
-3. **The summarizer** adds the Haiku sentence for sessions that need you.
+   It sorts the fleet needs-first and merges remote hosts.
+3. **The summarizer** adds the Haiku sentence, cached and off the UI thread.
 4. **The dashboard** (Textual) renders it and refreshes on an interval.
 
 ## Configuration
@@ -120,21 +153,12 @@ All optional, via environment variables:
 | `FLEETWATCH_HOSTS` | unset | remote hosts over ssh (`name` or `name=ssh_target`, comma-separated) |
 | `FLEETWATCH_NO_MODEL` | unset | set to `1` to disable summaries |
 
-## Watching other machines
+## Contributing
 
-`fleetwatch --hosts dreamer=luke@dr.eamer.dev` adds a remote host. Each refresh
-runs one `ssh <host> fleetwatch --export-json`, so the remote normalizes its own
-sessions and hands back the result: one command per host, the conversation
-content stays on the channel you already trust, and a host that goes unreachable
-goes stale rather than vanishing from the board. The remote just needs
-`fleetwatch` on its `PATH`. Once more than one host is in view, a `HOST` column
-appears so you can tell which machine each session is on.
-
-## What is next
-
-Desktop notifications for the sessions that need you, an optional Cursor adapter,
-and a PyPI release once summaries move behind an opt-in extra.
+Bug reports, vendor adapters, and fixes are welcome. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the setup, the adapter contract, and how
+to add a new CLI.
 
 ## License
 
-MIT.
+MIT. See [LICENSE](LICENSE).
