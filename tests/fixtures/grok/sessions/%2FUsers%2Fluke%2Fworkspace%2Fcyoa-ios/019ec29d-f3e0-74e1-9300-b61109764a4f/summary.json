@@ -1,0 +1,16 @@
+{
+  "info": {
+    "id": "019ec29d-f3e0-74e1-9300-b61109764a4f",
+    "cwd": "/Users/luke/workspace/cyoa-ios"
+  },
+  "session_summary": "Activate Review Codebase Files Create NEXT_STEPS_GROK",
+  "created_at": "2026-06-13T20:13:12.108469Z",
+  "updated_at": "2026-06-13T20:15:43.665009Z",
+  "num_messages": 211,
+  "num_chat_messages": 79,
+  "current_model_id": "grok-build",
+  "head_branch": "main",
+  "last_active_at": "2026-06-13T20:15:43.557093Z",
+  "generated_title": "Activate Review Codebase Files Create NEXT_STEPS_GROK",
+  "agent_name": "grok-build-plan"
+}

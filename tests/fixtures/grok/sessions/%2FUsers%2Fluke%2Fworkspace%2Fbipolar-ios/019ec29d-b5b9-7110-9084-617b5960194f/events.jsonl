@@ -1,0 +1,5 @@
+{"ts":"2026-06-13T19:05:01.200Z","type":"turn_started"}
+{"ts":"2026-06-13T19:05:01.300Z","type":"phase_changed","phase":"waiting_for_model"}
+{"ts":"2026-06-13T19:05:09.000Z","type":"phase_changed","phase":"tool_execution"}
+{"ts":"2026-06-13T19:05:09.100Z","type":"permission_requested","tool_name":"bash"}
+{"ts":"2026-06-13T19:05:09.110Z","type":"phase_changed","phase":"permission_prompt"}

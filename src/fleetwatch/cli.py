@@ -42,6 +42,11 @@ def main(argv: "list[str] | None" = None) -> int:
     agg = Aggregator()
     agg.refresh()
 
+    if args.export_json or args.once:
+        # One-shot modes have no refresh loop, so give background summaries a
+        # moment to land before we print.
+        agg.summarizer.drain()
+
     if args.export_json:
         print(json.dumps([s.to_dict() for s in agg.sessions()], indent=2))
         return 0
