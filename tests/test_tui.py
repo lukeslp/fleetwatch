@@ -207,6 +207,26 @@ def test_app_cursor_moves_update_detail():
     asyncio.run(go())
 
 
+def test_build_detail_is_provider_and_state_accented():
+    from fleetwatch.tui import build_detail
+    from fleetwatch.palette import state_style, vendor_style
+
+    s = make_sessions()[0]  # waiting / claude, with needs + summary
+    text = build_detail(s)
+
+    # The content is all there.
+    plain = text.plain
+    for token in (s.project, "vendor", "state", "needs", "summary"):
+        assert token in plain
+
+    styles = {str(span.style) for span in text.spans}
+    # Panel accents are the vendor color (color-coded by provider)...
+    acc = vendor_style(s.vendor)
+    assert any(acc in st for st in styles), styles
+    # ...and the state line carries the state color.
+    assert any(state_style(s.state) in st for st in styles), styles
+
+
 def test_app_handles_empty_fleet():
     agg = FakeAggregator(sessions=[])
 

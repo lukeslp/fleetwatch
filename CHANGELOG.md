@@ -9,9 +9,11 @@ All notable changes to fleetwatch. Dates are when the work landed.
   grey. The glyph is a second, color-free channel, so the board still parses for
   a reader who cannot see the hue, and nothing leans on a red-vs-green contrast.
   Vendors carry their own accent (orange, cyan, magenta, violet), kept clear of
-  the state colors. `fleetwatch --once` prints in color on a terminal and stays
-  plain when piped to a file or a log. It all lives in one palette, so the live
-  board and the text snapshot stay in step.
+  the state colors. The detail pane takes the selected session's vendor color as
+  its accent, so the right side is coded by provider too. `fleetwatch --once`
+  prints in color on a terminal and stays plain when piped to a file or a log.
+  It all lives in one palette, so the live board and the text snapshot stay in
+  step.
 - Hardened the summarizer: a guarded return replaces an assertion that could
   fire on a background thread, and the whole module is now under test: cache
   keying, in-flight de-duplication, the drain timeout, and the model-failure

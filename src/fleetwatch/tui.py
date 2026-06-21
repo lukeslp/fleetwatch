@@ -96,6 +96,65 @@ class StatusBar(Static):
         self.update(line)
 
 
+def build_detail(s: SessionState) -> Text:
+    """Rich Text for the detail panel.
+
+    Kept module-level so it can be rendered and tested without a running app.
+    The panel's structural accents — the title, every field label, every
+    section header — all take the session's vendor color, so the right pane is
+    color-coded by provider exactly the way the list is. The state line keeps
+    its own state color, ``needs`` stays alert-yellow, and an error is red.
+    """
+    acc = _vendor_color(s.vendor)  # this panel's provider accent
+    body = Text()
+    body.append(s.project or "(no project)", style=f"bold {acc}")
+    if s.cwd:
+        body.append(f"\n{s.cwd}", style="dim")
+    body.append("\n\n")
+
+    body.append("vendor  ", style=acc)
+    body.append(f"{s.vendor}\n", style=acc)
+    body.append("state   ", style=acc)
+    body.append(state_label(s.state), style=_state_color(s.state))
+    if s.needs_attention:
+        body.append("  !", style="bold bright_red")
+    body.append("\n")
+
+    if s.needs:
+        body.append("needs   ", style=acc)
+        body.append(f"{s.needs}\n", style="bright_yellow")
+
+    # Model-written summary, falling back to the adapter's one-liner.
+    body.append("\nsummary\n", style=f"bold {acc}")
+    body.append(_excerpt(s.summary if s.summary else s.doing) or "(none)")
+    body.append("\n")
+
+    if s.todos:
+        body.append("\ntodos\n", style=f"bold {acc}")
+        for t in s.todos:
+            glyph = _TODO_GLYPHS.get(t.status, "○")
+            # Completed work recedes (the ✔ carries it); in-progress is the one
+            # to watch. No green anywhere, same as the state palette.
+            style = "grey58" if t.status == "completed" else (
+                "bright_yellow" if t.status == "in_progress" else "white"
+            )
+            body.append(f"  {glyph} ", style=style)
+            body.append(f"{t.text}\n")
+
+    if s.last_user:
+        body.append("\nlast user\n", style=f"bold {acc}")
+        body.append(_excerpt(s.last_user, 160) + "\n")
+    if s.last_agent:
+        body.append("\nlast agent\n", style=f"bold {acc}")
+        body.append(_excerpt(s.last_agent, 160) + "\n")
+
+    if s.error:
+        body.append("\nerror\n", style="bold bright_red")
+        body.append(_excerpt(s.error, 200), style="bright_red")
+
+    return body
+
+
 class DetailPanel(Static):
     """Side panel describing the currently selected session."""
 
@@ -103,52 +162,7 @@ class DetailPanel(Static):
         self.update(Text("Select a session to see details.", style="dim"))
 
     def show_session(self, s: SessionState) -> None:
-        body = Text()
-        body.append(s.project or "(no project)", style=f"bold {_vendor_color(s.vendor)}")
-        if s.cwd:
-            body.append(f"\n{s.cwd}", style="dim")
-        body.append("\n\n")
-        body.append("vendor  ", style="dim")
-        body.append(f"{s.vendor}\n", style=_vendor_color(s.vendor))
-        body.append("state   ", style="dim")
-        body.append(state_label(s.state), style=_state_color(s.state))
-        if s.needs_attention:
-            body.append("  !", style="bold bright_red")
-        body.append("\n")
-
-        if s.needs:
-            body.append("needs   ", style="dim")
-            body.append(f"{s.needs}\n", style="bright_yellow")
-
-        # Model-written summary, falling back to the adapter's one-liner.
-        body.append("\nsummary\n", style="dim")
-        body.append(_excerpt(s.summary if s.summary else s.doing) or "(none)")
-        body.append("\n")
-
-        if s.todos:
-            body.append("\ntodos\n", style="dim")
-            for t in s.todos:
-                glyph = _TODO_GLYPHS.get(t.status, "○")
-                # Completed work recedes (the ✔ carries it); in-progress is the
-                # one to watch. No green anywhere, same as the state palette.
-                style = "grey58" if t.status == "completed" else (
-                    "bright_yellow" if t.status == "in_progress" else "white"
-                )
-                body.append(f"  {glyph} ", style=style)
-                body.append(f"{t.text}\n")
-
-        if s.last_user:
-            body.append("\nlast user\n", style="dim")
-            body.append(_excerpt(s.last_user, 160) + "\n")
-        if s.last_agent:
-            body.append("\nlast agent\n", style="dim")
-            body.append(_excerpt(s.last_agent, 160) + "\n")
-
-        if s.error:
-            body.append("\nerror\n", style="dim")
-            body.append(_excerpt(s.error, 200), style="red")
-
-        self.update(body)
+        self.update(build_detail(s))
 
 
 class FleetApp(App):
