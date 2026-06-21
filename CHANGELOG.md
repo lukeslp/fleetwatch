@@ -18,6 +18,8 @@ All notable changes to fleetwatch. Dates are when the work landed.
   fire on a background thread, and the whole module is now under test: cache
   keying, in-flight de-duplication, the drain timeout, and the model-failure
   fallback to the heuristic line.
+- First PyPI release, as `fleetwatcher` (`pip install fleetwatcher`); the name
+  `fleetwatch` was taken, but the commands are still `fleetwatch` and `fw`.
 
 ## 0.3.1 - 2026-06-17
 

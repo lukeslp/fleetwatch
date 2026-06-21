@@ -3,7 +3,10 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fleetwatch"
+# Distribution name on PyPI. The import package and the CLI commands are both
+# "fleetwatch"; the dist name differs because "fleetwatch" was too similar to an
+# existing project ("fleet-watch") for PyPI to accept.
+name = "fleetwatcher"
 version = "0.4.0"
 description = "One screen for every terminal coding session you have running, across Claude Code, Codex, Grok, and Gemini"
 readme = "README.md"

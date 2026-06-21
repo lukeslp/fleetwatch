@@ -51,18 +51,23 @@ plain text when you pipe it to a file or a log.
 
 ## Install
 
-Not on PyPI yet. Install from source:
+```sh
+pip install fleetwatcher                 # dashboard only: free, no network
+pip install "fleetwatcher[summaries]"    # add plain-language summaries (Claude Haiku)
+```
+
+On PyPI the package is `fleetwatcher` (the name `fleetwatch` was already taken);
+the commands it installs are `fleetwatch` and `fw`. Python 3.10 or newer.
+
+From source instead:
 
 ```sh
 git clone https://github.com/lukeslp/fleetwatch
 cd fleetwatch
 python3 -m venv .venv
-.venv/bin/pip install -e .                 # dashboard only: free, no network
-.venv/bin/pip install -e ".[summaries]"    # add plain-language summaries (Claude Haiku)
+.venv/bin/pip install -e .                 # dashboard only
+.venv/bin/pip install -e ".[summaries]"    # add summaries
 ```
-
-Python 3.10 or newer. The install puts `fleetwatch` and `fw` on the PATH inside
-the venv; activate the venv, or symlink `.venv/bin/fleetwatch` onto your PATH.
 
 ## Usage
 
