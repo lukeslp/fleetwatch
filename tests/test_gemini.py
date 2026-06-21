@@ -29,11 +29,11 @@ import glob as _glob
 import os
 import time
 
-from fleetwatch.adapters.base import Source
-from fleetwatch.adapters.gemini import GeminiAdapter
-from fleetwatch.config import ACTIVE_WINDOW, DONE_AFTER
-from fleetwatch.models import State
-from fleetwatch.tailer import read_tail_lines, read_tail_records
+from fleetwatcher.adapters.base import Source
+from fleetwatcher.adapters.gemini import GeminiAdapter
+from fleetwatcher.config import ACTIVE_WINDOW, DONE_AFTER
+from fleetwatcher.models import State
+from fleetwatcher.tailer import read_tail_lines, read_tail_records
 
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures", "gemini")
 
@@ -253,7 +253,7 @@ def test_truncated_final_line_does_not_break_read():
 
 def test_read_never_raises_on_unreadable():
     adapter = GeminiAdapter()
-    from fleetwatch.adapters.base import SessionRef
+    from fleetwatcher.adapters.base import SessionRef
 
     bogus = SessionRef(path="~/.gemini/tmp/nope/chats/session-x.jsonl",
                        session_id="session-x")

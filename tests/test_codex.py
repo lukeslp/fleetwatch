@@ -16,11 +16,11 @@ from __future__ import annotations
 import os
 import time
 
-from fleetwatch.adapters.base import Source
-from fleetwatch.adapters.codex import CodexAdapter
-from fleetwatch.config import ACTIVE_WINDOW, DONE_AFTER
-from fleetwatch.models import State
-from fleetwatch.tailer import read_tail_lines, read_tail_records
+from fleetwatcher.adapters.base import Source
+from fleetwatcher.adapters.codex import CodexAdapter
+from fleetwatcher.config import ACTIVE_WINDOW, DONE_AFTER
+from fleetwatcher.models import State
+from fleetwatcher.tailer import read_tail_lines, read_tail_records
 
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures", "codex")
 
@@ -136,8 +136,8 @@ def test_read_active_when_fresh():
     assert st.state is State.ACTIVE
     assert st.vendor == "codex"
     assert st.session_id == SID_BASE
-    assert st.cwd == "/Users/luke/workspace/fleetwatch"
-    assert st.project == "fleetwatch"
+    assert st.cwd == "/Users/luke/workspace/fleetwatcher"
+    assert st.project == "fleetwatcher"
     assert st.last_user == "add a codex adapter and run the tests"
     assert "codex adapter is written" in st.last_agent
     # update_plan mapped to todos with real step/status fields
@@ -209,7 +209,7 @@ def test_truncated_final_line_does_not_break_read():
 
 def test_read_never_raises_on_garbage_path():
     adapter = CodexAdapter()
-    from fleetwatch.adapters.base import SessionRef
+    from fleetwatcher.adapters.base import SessionRef
 
     bad = SessionRef(path="~/.codex/sessions/does/not/exist.jsonl", session_id="nope")
     st = adapter.read(FakeSource(), bad, None)

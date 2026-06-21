@@ -25,10 +25,10 @@ import time
 
 import pytest
 
-from fleetwatch.adapters.base import Source
-from fleetwatch.adapters.grok import GrokAdapter
-from fleetwatch.config import ACTIVE_WINDOW, DONE_AFTER
-from fleetwatch.models import State
+from fleetwatcher.adapters.base import Source
+from fleetwatcher.adapters.grok import GrokAdapter
+from fleetwatcher.config import ACTIVE_WINDOW, DONE_AFTER
+from fleetwatcher.models import State
 
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures", "grok")
 
@@ -96,12 +96,12 @@ class FixtureSource(Source):
             return ""
 
     def tail_lines(self, path: str, max_bytes: int = 512_000) -> list[str]:
-        from fleetwatch.tailer import read_tail_lines
+        from fleetwatcher.tailer import read_tail_lines
 
         return read_tail_lines(self.expand(path), max_bytes)
 
     def tail_records(self, path: str, max_bytes: int = 512_000) -> list[dict]:
-        from fleetwatch.tailer import read_tail_records
+        from fleetwatcher.tailer import read_tail_records
 
         return read_tail_records(self.expand(path), max_bytes)
 
@@ -277,7 +277,7 @@ def test_read_never_raises_on_bad_input():
     """A ref pointing at nothing must yield ERROR, not an exception."""
     adapter = GrokAdapter()
     source = FixtureSource()
-    from fleetwatch.adapters.base import SessionRef
+    from fleetwatcher.adapters.base import SessionRef
 
     bad = SessionRef(
         path="~/.grok/sessions/%2Fdoes%2Fnot%2Fexist/prompt_history.jsonl",

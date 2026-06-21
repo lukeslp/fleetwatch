@@ -1,6 +1,14 @@
 # Changelog
 
-All notable changes to fleetwatch. Dates are when the work landed.
+All notable changes to fleetwatcher. Dates are when the work landed.
+
+## 0.5.0 - 2026-06-21
+
+- Renamed to `fleetwatcher` throughout, so the command, the import package, the
+  GitHub repository, and the environment variables all match the name on PyPI.
+  Install with `pip install fleetwatcher` and run `fleetwatcher` (or `fw`).
+  Settings are now `FLEETWATCHER_*` (previously `FLEETWATCH_*`); 0.4.0 had shipped
+  the command as `fleetwatch`.
 
 ## 0.4.0 - 2026-06-21
 
@@ -10,7 +18,7 @@ All notable changes to fleetwatch. Dates are when the work landed.
   a reader who cannot see the hue, and nothing leans on a red-vs-green contrast.
   Vendors carry their own accent (orange, cyan, magenta, violet), kept clear of
   the state colors. The detail pane takes the selected session's vendor color as
-  its accent, so the right side is coded by provider too. `fleetwatch --once`
+  its accent, so the right side is coded by provider too. `fleetwatcher --once`
   prints in color on a terminal and stays plain when piped to a file or a log.
   It all lives in one palette, so the live board and the text snapshot stay in
   step.
@@ -18,12 +26,12 @@ All notable changes to fleetwatch. Dates are when the work landed.
   fire on a background thread, and the whole module is now under test: cache
   keying, in-flight de-duplication, the drain timeout, and the model-failure
   fallback to the heuristic line.
-- First PyPI release, as `fleetwatcher` (`pip install fleetwatcher`); the name
-  `fleetwatch` was taken, but the commands are still `fleetwatch` and `fw`.
+- First PyPI release as `fleetwatcher` (`pip install fleetwatcher`); the shorter
+  `fleetwatch` was already taken.
 
 ## 0.3.1 - 2026-06-17
 
-- `anthropic` is now an optional extra (`pip install "fleetwatch[summaries]"`).
+- `anthropic` is now an optional extra (`pip install "fleetwatcher[summaries]"`).
   A bare install pulls only Textual, makes no network calls, and never spends
   tokens. Summaries stay available the moment the extra and an API key are present.
 - Open-source docs: full README, LICENSE (MIT), this changelog, contributing guide.

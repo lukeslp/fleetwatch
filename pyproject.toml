@@ -3,11 +3,11 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# Distribution name on PyPI. The import package and the CLI commands are both
-# "fleetwatch"; the dist name differs because "fleetwatch" was too similar to an
-# existing project ("fleet-watch") for PyPI to accept.
+# Everything is "fleetwatcher" — the dist name, the import package, and the CLI
+# commands all match. The shorter "fleetwatch" was unavailable on PyPI (too
+# similar to the existing "fleet-watch"), so the longer name is used throughout.
 name = "fleetwatcher"
-version = "0.4.0"
+version = "0.5.0"
 description = "One screen for every terminal coding session you have running, across Claude Code, Codex, Grok, and Gemini"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -29,18 +29,18 @@ dependencies = [
 
 [project.optional-dependencies]
 # Plain-language summaries call Claude Haiku. Kept optional so a bare install
-# never pulls the SDK or spends tokens; opt in with: pip install "fleetwatch[summaries]"
+# never pulls the SDK or spends tokens; opt in with: pip install "fleetwatcher[summaries]"
 summaries = ["anthropic>=0.40"]
 dev = ["pytest>=8"]
 
 [project.urls]
-Homepage = "https://github.com/lukeslp/fleetwatch"
-Repository = "https://github.com/lukeslp/fleetwatch"
-Issues = "https://github.com/lukeslp/fleetwatch/issues"
+Homepage = "https://github.com/lukeslp/fleetwatcher"
+Repository = "https://github.com/lukeslp/fleetwatcher"
+Issues = "https://github.com/lukeslp/fleetwatcher/issues"
 
 [project.scripts]
-fleetwatch = "fleetwatch.cli:main"
-fw = "fleetwatch.cli:main"
+fleetwatcher = "fleetwatcher.cli:main"
+fw = "fleetwatcher.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,4 +1,4 @@
-# fleetwatch — cross-CLI session monitor
+# fleetwatcher — cross-CLI session monitor
 
 **Date:** 2026-06-17
 **Status:** approved, implementing

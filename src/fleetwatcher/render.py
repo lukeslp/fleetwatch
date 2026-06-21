@@ -1,7 +1,7 @@
-"""Plain-text snapshot rendering for ``fleetwatch --once``.
+"""Plain-text snapshot rendering for ``fleetwatcher --once``.
 
 This module is deliberately dependency-light: it produces a single multi-line
-string from a list of :class:`~fleetwatch.models.SessionState`. The TUI uses
+string from a list of :class:`~fleetwatcher.models.SessionState`. The TUI uses
 Textual, but ``--once`` (and any pipe-to-a-log usage) only needs text, so this
 stays importable and runnable with nothing but the standard library.
 """
@@ -50,7 +50,7 @@ def _truncate(text: str, width: int) -> str:
 
 def _header(counts: Optional[dict], now: float, color: bool = False) -> list[str]:
     clock = time.strftime("%H:%M:%S", time.localtime(now))
-    head = paint("cyan", "fleetwatch", color)
+    head = paint("cyan", "fleetwatcher", color)
     clock_s = paint("grey58", clock, color)
     if not counts:
         return [f"{head}  {clock_s}"]
@@ -75,7 +75,7 @@ def render_snapshot(
     now: Optional[float] = None,
     color: bool = False,
 ) -> str:
-    """Return a clean multi-line text table for ``fleetwatch --once``.
+    """Return a clean multi-line text table for ``fleetwatcher --once``.
 
     One line per session: vendor, project, state, humanized idle age, a "!"
     when the session needs attention, and the doing/needs text. A header with

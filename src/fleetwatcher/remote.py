@@ -1,8 +1,8 @@
 """Watching other machines, the cheap and robust way.
 
 Instead of tailing a remote host's session files over a long-lived connection,
-fleetwatch asks the remote to do its own normalization and just hand back the
-answer: one ``ssh <host> fleetwatch --export-json`` per refresh returns that
+fleetwatcher asks the remote to do its own normalization and just hand back the
+answer: one ``ssh <host> fleetwatcher --export-json`` per refresh returns that
 host's whole fleet as JSON. One command per host (not N file tails), the work
 happens where the files are, and the conversation content never leaves the
 channel you already trust.
@@ -27,7 +27,7 @@ class RemoteHost:
         self,
         name: str,
         ssh_target: Optional[str] = None,
-        command: str = "fleetwatch --export-json",
+        command: str = "fleetwatcher --export-json",
         timeout: float = 15.0,
     ):
         self.name = name
@@ -44,7 +44,7 @@ class RemoteHost:
         # Force heuristics-only on the remote so it never spends tokens; the
         # local summarizer fills in plain-language summaries for the whole fleet
         # from one API key.
-        remote_cmd = f"FLEETWATCH_NO_MODEL=1 {self.command}"
+        remote_cmd = f"FLEETWATCHER_NO_MODEL=1 {self.command}"
         argv = [
             "ssh",
             "-o", "BatchMode=yes",
@@ -82,7 +82,7 @@ class RemoteHost:
 
 
 def parse_hosts(spec: str) -> list[RemoteHost]:
-    """Parse a ``--hosts`` / ``FLEETWATCH_HOSTS`` string into RemoteHosts.
+    """Parse a ``--hosts`` / ``FLEETWATCHER_HOSTS`` string into RemoteHosts.
 
     Comma-separated. Each entry is ``name`` or ``name=ssh_target``. The pseudo
     host ``local`` is ignored here (the aggregator always watches local).

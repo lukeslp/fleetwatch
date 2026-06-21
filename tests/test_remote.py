@@ -7,10 +7,10 @@ import subprocess
 import time
 import types
 
-from fleetwatch.core import Aggregator
-from fleetwatch.models import SessionState, State
-from fleetwatch.remote import RemoteHost, parse_hosts
-from fleetwatch.summarize import Summarizer
+from fleetwatcher.core import Aggregator
+from fleetwatcher.models import SessionState, State
+from fleetwatcher.remote import RemoteHost, parse_hosts
+from fleetwatcher.summarize import Summarizer
 
 
 # --------------------------------------------------------------------------- #

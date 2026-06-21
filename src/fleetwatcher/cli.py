@@ -1,4 +1,4 @@
-"""fleetwatch command-line entry point."""
+"""fleetwatcher command-line entry point."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import sys
 
 def main(argv: "list[str] | None" = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="fleetwatch",
+        prog="fleetwatcher",
         description="Live plain-language status of every terminal coding session you have running.",
     )
     parser.add_argument(
@@ -42,11 +42,11 @@ def main(argv: "list[str] | None" = None) -> int:
 
     # CLI flags are translated to env so config.py stays the single source of truth.
     if args.no_model:
-        os.environ["FLEETWATCH_NO_MODEL"] = "1"
+        os.environ["FLEETWATCHER_NO_MODEL"] = "1"
     if args.vendors:
-        os.environ["FLEETWATCH_VENDORS"] = args.vendors
+        os.environ["FLEETWATCHER_VENDORS"] = args.vendors
     if args.hosts is not None:
-        os.environ["FLEETWATCH_HOSTS"] = args.hosts
+        os.environ["FLEETWATCHER_HOSTS"] = args.hosts
 
     from .core import Aggregator
 

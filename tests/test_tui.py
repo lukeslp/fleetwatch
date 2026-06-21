@@ -1,4 +1,4 @@
-"""Tests for the fleetwatch dashboard: text snapshot + Textual app.
+"""Tests for the fleetwatcher dashboard: text snapshot + Textual app.
 
 pytest-asyncio is not installed, so the async pilot tests wrap their coroutine
 in ``asyncio.run`` by hand.
@@ -9,9 +9,9 @@ from __future__ import annotations
 import asyncio
 import time
 
-from fleetwatch.models import SessionState, State, TodoItem
-from fleetwatch.render import humanize_age, render_snapshot
-from fleetwatch.tui import FleetApp
+from fleetwatcher.models import SessionState, State, TodoItem
+from fleetwatcher.render import humanize_age, render_snapshot
+from fleetwatcher.tui import FleetApp
 
 
 # --------------------------------------------------------------------------- #
@@ -21,8 +21,8 @@ from fleetwatch.tui import FleetApp
 def make_sessions(now: float | None = None) -> list[SessionState]:
     now = time.time() if now is None else now
     waiting = SessionState(
-        vendor="claude", session_id="w1", project="fleetwatch",
-        cwd="/Users/luke/workspace/fleetwatch", state=State.WAITING,
+        vendor="claude", session_id="w1", project="fleetwatcher",
+        cwd="/Users/luke/workspace/fleetwatcher", state=State.WAITING,
         last_activity=now - 5,
         doing="ran the test suite",
         needs="approve running pytest?",
@@ -112,7 +112,7 @@ def test_render_snapshot_multiple_states():
     out = render_snapshot(sessions, counts=counts, now=now)
 
     # Every vendor and project shows up
-    for token in ("claude", "codex", "grok", "fleetwatch", "orrery", "whatcolor",
+    for token in ("claude", "codex", "grok", "fleetwatcher", "orrery", "whatcolor",
                   "cube", "mandaza"):
         assert token in out
 
@@ -134,7 +134,7 @@ def test_render_snapshot_marks_needs_attention():
     # The "!" marker must be present for waiting/error sessions
     assert "!" in out
     # Line for the waiting session carries both its state and the bang
-    waiting_lines = [ln for ln in out.splitlines() if "fleetwatch" in ln and "waiting" in ln]
+    waiting_lines = [ln for ln in out.splitlines() if "fleetwatcher" in ln and "waiting" in ln]
     assert waiting_lines
     assert "!" in waiting_lines[0]
 
@@ -208,8 +208,8 @@ def test_app_cursor_moves_update_detail():
 
 
 def test_build_detail_is_provider_and_state_accented():
-    from fleetwatch.tui import build_detail
-    from fleetwatch.palette import state_style, vendor_style
+    from fleetwatcher.tui import build_detail
+    from fleetwatcher.palette import state_style, vendor_style
 
     s = make_sessions()[0]  # waiting / claude, with needs + summary
     text = build_detail(s)

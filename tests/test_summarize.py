@@ -15,8 +15,8 @@ import types
 
 import pytest
 
-from fleetwatch.models import SessionState, State, TodoItem
-from fleetwatch.summarize import Summarizer
+from fleetwatcher.models import SessionState, State, TodoItem
+from fleetwatcher.summarize import Summarizer
 
 
 # --------------------------------------------------------------------------- #
@@ -65,7 +65,7 @@ def _state(last_activity: float = 100.0, **kw) -> SessionState:
     base = dict(
         vendor="claude",
         session_id="s1",
-        project="fleetwatch",
+        project="fleetwatcher",
         state=State.WAITING,
         last_activity=last_activity,
         doing="ran the test suite",
@@ -262,6 +262,6 @@ def test_build_prompt_includes_context():
         todos=[TodoItem("write the tests", "in_progress")],
     )
     prompt = s._build_prompt(st)
-    for token in ("claude", "fleetwatch", "waiting", "approve running pytest?",
+    for token in ("claude", "fleetwatcher", "waiting", "approve running pytest?",
                   "please add the tests", "May I run pytest?", "write the tests"):
         assert token in prompt

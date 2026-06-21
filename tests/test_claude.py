@@ -16,10 +16,10 @@ import time
 
 import pytest
 
-from fleetwatch.adapters.base import LocalSource, SessionRef, Source
-from fleetwatch.adapters.claude import ClaudeAdapter
-from fleetwatch.config import ACTIVE_WINDOW, DONE_AFTER
-from fleetwatch.models import State
+from fleetwatcher.adapters.base import LocalSource, SessionRef, Source
+from fleetwatcher.adapters.claude import ClaudeAdapter
+from fleetwatcher.config import ACTIVE_WINDOW, DONE_AFTER
+from fleetwatcher.models import State
 
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures", "claude")
 
@@ -88,7 +88,7 @@ def _stale_done() -> float:
 def test_discover_finds_fixture_sessions(monkeypatch):
     """discover() points at our fixtures root and finds all three sessions."""
     # Redirect the adapter's glob/exists at the fixtures tree.
-    import fleetwatch.adapters.claude as mod
+    import fleetwatcher.adapters.claude as mod
 
     monkeypatch.setattr(mod, "PROJECTS_ROOT", FIXTURES)
     monkeypatch.setattr(mod, "PROJECTS_GLOB", os.path.join(FIXTURES, "*", "*.jsonl"))
@@ -102,15 +102,15 @@ def test_discover_finds_fixture_sessions(monkeypatch):
 
 def test_discover_missing_root_returns_empty():
     """A nonexistent projects root yields [] rather than raising."""
-    import fleetwatch.adapters.claude as mod
+    import fleetwatcher.adapters.claude as mod
 
     adapter = ClaudeAdapter()
     src = LocalSource()
     # Point at a path that does not exist; discover must be quiet.
     orig_root, orig_glob = mod.PROJECTS_ROOT, mod.PROJECTS_GLOB
     try:
-        mod.PROJECTS_ROOT = "/no/such/fleetwatch/projects/root"
-        mod.PROJECTS_GLOB = "/no/such/fleetwatch/projects/root/*/*.jsonl"
+        mod.PROJECTS_ROOT = "/no/such/fleetwatcher/projects/root"
+        mod.PROJECTS_GLOB = "/no/such/fleetwatcher/projects/root/*/*.jsonl"
         assert adapter.discover(src) == []
     finally:
         mod.PROJECTS_ROOT, mod.PROJECTS_GLOB = orig_root, orig_glob
@@ -120,7 +120,7 @@ def test_discover_missing_root_returns_empty():
 
 @pytest.fixture()
 def patched(monkeypatch):
-    import fleetwatch.adapters.claude as mod
+    import fleetwatcher.adapters.claude as mod
 
     monkeypatch.setattr(mod, "PROJECTS_ROOT", FIXTURES)
     monkeypatch.setattr(mod, "PROJECTS_GLOB", os.path.join(FIXTURES, "*", "*.jsonl"))

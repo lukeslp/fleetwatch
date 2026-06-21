@@ -1,4 +1,4 @@
-# Contributing to fleetwatch
+# Contributing to fleetwatcher
 
 Thanks for taking a look. Bug reports, fixes, and new vendor adapters are all
 welcome.
@@ -6,8 +6,8 @@ welcome.
 ## Setup
 
 ```sh
-git clone https://github.com/lukeslp/fleetwatch
-cd fleetwatch
+git clone https://github.com/lukeslp/fleetwatcher
+cd fleetwatcher
 python3 -m venv .venv
 .venv/bin/pip install -e ".[summaries,dev]"
 .venv/bin/python -m pytest -q
@@ -18,7 +18,7 @@ Python 3.10 or newer. The test suite runs offline and needs no API key.
 ## Layout
 
 ```
-src/fleetwatch/
+src/fleetwatcher/
   models.py        SessionState: the one record every layer speaks
   tailer.py        bounded, crash-proof JSONL tail reads
   adapters/

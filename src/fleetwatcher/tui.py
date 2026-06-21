@@ -1,4 +1,4 @@
-"""Full-screen Textual dashboard for fleetwatch.
+"""Full-screen Textual dashboard for fleetwatcher.
 
 Importing this module must never touch the terminal — only :func:`run_tui`
 starts the app, so the module stays safe to import headless (CI, ``--export-json``,
@@ -168,7 +168,7 @@ class DetailPanel(Static):
 class FleetApp(App):
     """The live dashboard. Build with an aggregator, then ``run()`` it."""
 
-    TITLE = "fleetwatch"
+    TITLE = "fleetwatcher"
 
     CSS = """
     Screen { layout: vertical; }
@@ -405,19 +405,19 @@ if __name__ == "__main__":
     from .models import TodoItem
 
     class _FakeAggregator:
-        """A fixed fleet covering every State, for ``python -m fleetwatch.tui``."""
+        """A fixed fleet covering every State, for ``python -m fleetwatcher.tui``."""
 
         def __init__(self) -> None:
             now = time.time()
             self._sessions = [
                 SessionState(
-                    vendor="claude", session_id="w1", project="fleetwatch",
-                    cwd="/Users/luke/workspace/fleetwatch", state=State.WAITING,
+                    vendor="claude", session_id="w1", project="fleetwatcher",
+                    cwd="/Users/luke/workspace/fleetwatcher", state=State.WAITING,
                     last_activity=now - 8,
                     doing="ran the test suite",
                     needs="approve running pytest?",
                     summary="Claude is blocked on a permission prompt: it wants to run the "
-                            "fleetwatch test suite and is waiting for you to approve it.",
+                            "fleetwatcher test suite and is waiting for you to approve it.",
                     last_user="please add the TUI tests",
                     last_agent="May I run pytest tests/test_tui.py?",
                 ),

@@ -1,4 +1,4 @@
-"""The one place fleetwatch decides what color anything is.
+"""The one place fleetwatcher decides what color anything is.
 
 Two renderers consume these colors — the Textual dashboard (:mod:`tui`), which
 speaks Rich style strings, and the plain-text snapshot (:mod:`render`), which
@@ -73,7 +73,7 @@ def vendor_style(vendor: str) -> str:
 
 
 # --- ANSI for the plain-text snapshot ------------------------------------- #
-# SGR codes mirroring the Rich styles above, so `fleetwatch --once` on a TTY
+# SGR codes mirroring the Rich styles above, so `fleetwatcher --once` on a TTY
 # carries the same scheme. Unknown styles paint nothing (graceful no-op).
 _ANSI: dict[str, str] = {
     "cyan": "36",

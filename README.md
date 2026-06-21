@@ -1,17 +1,17 @@
-# fleetwatch
+# fleetwatcher
 
 One screen for every terminal coding session you have running.
 
-![The fleetwatch dashboard: a fleet of coding sessions colored by vendor and state, with a detail panel for the selected session.](https://raw.githubusercontent.com/lukeslp/fleetwatch/main/docs/fleetwatch.png)
+![The fleetwatcher dashboard: a fleet of coding sessions colored by vendor and state, with a detail panel for the selected session.](https://raw.githubusercontent.com/lukeslp/fleetwatcher/main/docs/fleetwatcher.png)
 
-fleetwatch watches the coding CLIs you already run (Claude Code, Codex, Grok,
+fleetwatcher watches the coding CLIs you already run (Claude Code, Codex, Grok,
 Gemini) and shows a single live dashboard of what each session is doing and which
 ones are waiting on you. It reads each tool's own session files on disk,
 read-only. There is nothing to install into those tools, no daemon, no hooks. If
-a CLI writes a transcript, fleetwatch can watch it.
+a CLI writes a transcript, fleetwatcher can watch it.
 
 ```
-fleetwatch  17:18:43  active 1  waiting 1  idle 2  done 7  (total 11)
+fleetwatcher  17:18:43  active 1  waiting 1  idle 2  done 7  (total 11)
 
 HOST     VENDOR  PROJECT     STATE    IDLE  !  WHAT
 local    claude  orrery      active     3s     editing PhaseSpaceCoordinator.swift
@@ -58,14 +58,14 @@ pip install fleetwatcher                 # dashboard only: free, no network
 pip install "fleetwatcher[summaries]"    # add plain-language summaries (Claude Haiku)
 ```
 
-On PyPI the package is `fleetwatcher` (the name `fleetwatch` was already taken);
-the commands it installs are `fleetwatch` and `fw`. Python 3.10 or newer.
+It installs the `fleetwatcher` and `fw` commands. The shorter `fleetwatch` was
+already taken on PyPI, so the longer name is used everywhere. Python 3.10 or newer.
 
 From source instead:
 
 ```sh
-git clone https://github.com/lukeslp/fleetwatch
-cd fleetwatch
+git clone https://github.com/lukeslp/fleetwatcher
+cd fleetwatcher
 python3 -m venv .venv
 .venv/bin/pip install -e .                 # dashboard only
 .venv/bin/pip install -e ".[summaries]"    # add summaries
@@ -74,13 +74,13 @@ python3 -m venv .venv
 ## Usage
 
 ```sh
-fleetwatch                       # live dashboard
-fleetwatch --once                # one text snapshot, then exit
-fleetwatch --export-json         # machine-readable snapshot (scripting, remote hosts)
-fleetwatch --no-model            # heuristics only, no network
-fleetwatch --vendors claude,codex   # watch a subset
-fleetwatch --hosts dreamer=user@host   # also watch another machine over ssh
-fleetwatch --export-json --summarize-all   # full report: summarize every session
+fleetwatcher                       # live dashboard
+fleetwatcher --once                # one text snapshot, then exit
+fleetwatcher --export-json         # machine-readable snapshot (scripting, remote hosts)
+fleetwatcher --no-model            # heuristics only, no network
+fleetwatcher --vendors claude,codex   # watch a subset
+fleetwatcher --hosts dreamer=user@host   # also watch another machine over ssh
+fleetwatcher --export-json --summarize-all   # full report: summarize every session
 ```
 
 In the dashboard: `q` quit, `r` refresh now, `s` summarize the selected session,
@@ -105,7 +105,7 @@ Each adapter is small and isolated, so adding a vendor is a contained job. See
 
 ## Summaries (optional)
 
-Every row carries a quick heuristic line for free. On top of that, fleetwatch can
+Every row carries a quick heuristic line for free. On top of that, fleetwatcher can
 write a one-sentence plain-language status with Claude Haiku.
 
 Summaries turn on automatically when the `summaries` extra is installed and
@@ -114,23 +114,23 @@ whichever session you select, in the background, cached per session, so a fleet
 you are not looking at costs nothing. Press `S` (or run `--summarize-all`) to
 sweep every session at once.
 
-Without the extra or the key, fleetwatch never makes a network call and shows the
+Without the extra or the key, fleetwatcher never makes a network call and shows the
 heuristic line instead. `--no-model` forces heuristics-only even when summaries
 are available.
 
 ## Watching other machines
 
-`fleetwatch --hosts dreamer=user@host` adds a remote host. Each refresh runs one
-`ssh <host> fleetwatch --export-json`, so the remote normalizes its own sessions
+`fleetwatcher --hosts dreamer=user@host` adds a remote host. Each refresh runs one
+`ssh <host> fleetwatcher --export-json`, so the remote normalizes its own sessions
 and hands back the result: one command per host, the conversation content stays
 on the channel you already trust, and a host that goes unreachable goes stale
-rather than vanishing from the board. The remote just needs `fleetwatch` on its
+rather than vanishing from the board. The remote just needs `fleetwatcher` on its
 `PATH`. Once more than one host is in view, a `HOST` column appears so you can
 tell which machine each session is on.
 
 ## Privacy
 
-fleetwatch reads your CLIs' session files read-only and never writes to them. The
+fleetwatcher reads your CLIs' session files read-only and never writes to them. The
 dashboard displays short excerpts (the last user and agent messages, the plan)
 locally.
 
@@ -160,14 +160,14 @@ All optional, via environment variables:
 
 | Variable | Default | Effect |
 |----------|---------|--------|
-| `FLEETWATCH_ACTIVE_WINDOW` | `12` | seconds of quiet before a session stops counting as active |
-| `FLEETWATCH_DONE_AFTER` | `1800` | seconds of quiet before idle becomes done |
-| `FLEETWATCH_MAX_AGE` | `259200` | drop sessions older than this (3 days) |
-| `FLEETWATCH_REFRESH` | `2` | dashboard refresh interval, seconds |
-| `FLEETWATCH_MODEL` | `claude-haiku-4-5-20251001` | summary model |
-| `FLEETWATCH_VENDORS` | `claude,codex,grok,gemini` | which CLIs to watch |
-| `FLEETWATCH_HOSTS` | unset | remote hosts over ssh (`name` or `name=ssh_target`, comma-separated) |
-| `FLEETWATCH_NO_MODEL` | unset | set to `1` to disable summaries |
+| `FLEETWATCHER_ACTIVE_WINDOW` | `12` | seconds of quiet before a session stops counting as active |
+| `FLEETWATCHER_DONE_AFTER` | `1800` | seconds of quiet before idle becomes done |
+| `FLEETWATCHER_MAX_AGE` | `259200` | drop sessions older than this (3 days) |
+| `FLEETWATCHER_REFRESH` | `2` | dashboard refresh interval, seconds |
+| `FLEETWATCHER_MODEL` | `claude-haiku-4-5-20251001` | summary model |
+| `FLEETWATCHER_VENDORS` | `claude,codex,grok,gemini` | which CLIs to watch |
+| `FLEETWATCHER_HOSTS` | unset | remote hosts over ssh (`name` or `name=ssh_target`, comma-separated) |
+| `FLEETWATCHER_NO_MODEL` | unset | set to `1` to disable summaries |
 
 ## Contributing
 

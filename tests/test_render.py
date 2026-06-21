@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from fleetwatch.models import SessionState, State
-from fleetwatch.render import render_snapshot
+from fleetwatcher.models import SessionState, State
+from fleetwatcher.render import render_snapshot
 
 
 def _s(source, vendor="claude", project="p", state=State.IDLE, needs=None):

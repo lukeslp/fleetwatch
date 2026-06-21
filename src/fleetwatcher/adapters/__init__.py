@@ -29,7 +29,7 @@ def all_adapters() -> list[Adapter]:
             mod = importlib.import_module(f".{module_name}", __package__)
             out.append(getattr(mod, class_name)())
         except Exception as exc:  # never let one adapter break the others
-            print(f"fleetwatch: skipping {vendor} adapter ({exc})", file=sys.stderr)
+            print(f"fleetwatcher: skipping {vendor} adapter ({exc})", file=sys.stderr)
     return out
 
 
