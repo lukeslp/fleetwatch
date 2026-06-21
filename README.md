@@ -2,6 +2,8 @@
 
 One screen for every terminal coding session you have running.
 
+![The fleetwatch dashboard: a fleet of coding sessions colored by vendor and state, with a detail panel for the selected session.](https://raw.githubusercontent.com/lukeslp/fleetwatch/main/docs/fleetwatch.png)
+
 fleetwatch watches the coding CLIs you already run (Claude Code, Codex, Grok,
 Gemini) and shows a single live dashboard of what each session is doing and which
 ones are waiting on you. It reads each tool's own session files on disk,
