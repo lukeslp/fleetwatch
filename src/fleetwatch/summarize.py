@@ -79,8 +79,9 @@ class Summarizer:
                     return
             if ckey in self._inflight:
                 return
+            if self._pool is None:  # enabled implies a pool, but never assert in a thread
+                return
             self._inflight.add(ckey)
-        assert self._pool is not None
         self._pool.submit(self._run, st, ckey)
 
     def drain(self, timeout: float = 6.0) -> None:

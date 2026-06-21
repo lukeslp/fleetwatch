@@ -27,17 +27,13 @@ from textual.widgets import DataTable, Footer, Header, Static
 
 from . import config
 from .models import SessionState, State
+from .palette import (
+    state_label,
+    state_style as _state_color,
+    vendor_style as _vendor_color,
+)
 from .render import humanize_age
 
-
-# State -> Rich color used for the state cell and the legend.
-STATE_COLORS: dict[State, str] = {
-    State.ACTIVE: "green",
-    State.WAITING: "yellow",
-    State.ERROR: "red",
-    State.IDLE: "grey58",     # dim / grey
-    State.DONE: "grey42",     # dark grey
-}
 
 _TODO_GLYPHS = {
     "completed": "✔",
@@ -48,19 +44,15 @@ _TODO_GLYPHS = {
 _COUNT_ORDER = ("active", "waiting", "idle", "done", "error")
 
 
-def _state_color(state: State) -> str:
-    return STATE_COLORS.get(state, "white")
-
-
 def _legend() -> Text:
-    """One-line color legend for the header subtitle area."""
-    legend = Text("legend: ", style="dim")
+    """One-line key (glyph + color per state) for the header strip."""
+    legend = Text("key: ", style="dim")
     first = True
     for st in (State.ACTIVE, State.WAITING, State.IDLE, State.DONE, State.ERROR):
         if not first:
             legend.append("  ")
         first = False
-        legend.append(str(st), style=_state_color(st))
+        legend.append(state_label(st), style=_state_color(st))
     return legend
 
 
@@ -112,21 +104,21 @@ class DetailPanel(Static):
 
     def show_session(self, s: SessionState) -> None:
         body = Text()
-        body.append(s.project or "(no project)", style="bold")
+        body.append(s.project or "(no project)", style=f"bold {_vendor_color(s.vendor)}")
         if s.cwd:
             body.append(f"\n{s.cwd}", style="dim")
         body.append("\n\n")
         body.append("vendor  ", style="dim")
-        body.append(f"{s.vendor}\n")
+        body.append(f"{s.vendor}\n", style=_vendor_color(s.vendor))
         body.append("state   ", style="dim")
-        body.append(f"{s.state}", style=_state_color(s.state))
+        body.append(state_label(s.state), style=_state_color(s.state))
         if s.needs_attention:
-            body.append("  !", style="bold red")
+            body.append("  !", style="bold bright_red")
         body.append("\n")
 
         if s.needs:
             body.append("needs   ", style="dim")
-            body.append(f"{s.needs}\n", style="yellow")
+            body.append(f"{s.needs}\n", style="bright_yellow")
 
         # Model-written summary, falling back to the adapter's one-liner.
         body.append("\nsummary\n", style="dim")
@@ -137,8 +129,10 @@ class DetailPanel(Static):
             body.append("\ntodos\n", style="dim")
             for t in s.todos:
                 glyph = _TODO_GLYPHS.get(t.status, "○")
-                style = "green" if t.status == "completed" else (
-                    "yellow" if t.status == "in_progress" else "white"
+                # Completed work recedes (the ✔ carries it); in-progress is the
+                # one to watch. No green anywhere, same as the state palette.
+                style = "grey58" if t.status == "completed" else (
+                    "bright_yellow" if t.status == "in_progress" else "white"
                 )
                 body.append(f"  {glyph} ", style=style)
                 body.append(f"{t.text}\n")
@@ -159,6 +153,8 @@ class DetailPanel(Static):
 
 class FleetApp(App):
     """The live dashboard. Build with an aggregator, then ``run()`` it."""
+
+    TITLE = "fleetwatch"
 
     CSS = """
     Screen { layout: vertical; }
@@ -270,19 +266,21 @@ class FleetApp(App):
         return "|".join(s.key)
 
     def _row_cells(self, s: SessionState, now: float):
-        state_cell = Text(str(s.state), style=_state_color(s.state))
-        bang = Text("!", style="bold red") if s.needs_attention else Text("")
+        state_cell = Text(state_label(s.state), style=_state_color(s.state))
+        vendor_cell = Text(s.vendor, style=_vendor_color(s.vendor))
+        bang = Text("!", style="bold bright_red") if s.needs_attention else Text("")
+        age = Text(humanize_age(s.last_activity, now), style="grey58")
         doing = s.needs if (s.needs_attention and s.needs) else s.doing
-        cells = [
-            s.vendor,
-            s.project,
-            state_cell,
-            humanize_age(s.last_activity, now),
-            bang,
-            _excerpt(doing, 80),
-        ]
+        # The reason a session wants you reads in alert yellow; routine activity
+        # stays plain, so the eye lands on the rows that need action.
+        doing_cell = (
+            Text(_excerpt(doing, 80), style="bright_yellow")
+            if (s.needs_attention and s.needs)
+            else _excerpt(doing, 80)
+        )
+        cells = [vendor_cell, s.project, state_cell, age, bang, doing_cell]
         if self._show_host:
-            cells.insert(0, s.source)
+            cells.insert(0, Text(s.source, style="grey58"))
         return tuple(cells)
 
     def _show_detail(self, index: int) -> None:

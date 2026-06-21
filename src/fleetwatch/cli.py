@@ -68,7 +68,10 @@ def main(argv: "list[str] | None" = None) -> int:
 
     if args.once:
         from .render import render_snapshot
-        print(render_snapshot(agg.sessions(), counts=agg.counts()))
+        # Color on a terminal, plain when piped to a file or a log.
+        print(render_snapshot(
+            agg.sessions(), counts=agg.counts(), color=sys.stdout.isatty()
+        ))
         return 0
 
     from .tui import run_tui

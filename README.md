@@ -40,6 +40,15 @@ Codex command awaiting approval, a Grok `permission_requested` event with no
 resolution. A session that is genuinely mid-tool stays `active`; only a stalled
 one becomes `waiting`.
 
+Each state has its own bright primary (blue for `active`, yellow for `waiting`,
+red for `error`) plus a glyph (`● ◆ ✗ ○ ·`), so the board reads by shape even
+with the color off. `idle` and `done` recede into grey. Vendors carry their own
+accent (orange, cyan, magenta, violet), kept clear of the state colors so a
+vendor tag never reads as a status. Nothing leans on a red-versus-green
+distinction, the one pair color-blind readers cannot separate. The dashboard is
+always in color; `--once` adds color when it prints to a terminal and stays
+plain text when you pipe it to a file or a log.
+
 ## Install
 
 Not on PyPI yet. Install from source:

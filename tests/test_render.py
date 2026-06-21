@@ -39,3 +39,38 @@ def test_needs_flag_rendered():
     )
     assert "!" in out
     assert "approve a command" in out
+
+
+def test_color_off_by_default_is_plain():
+    out = render_snapshot(
+        [_s("local", vendor="claude", state=State.WAITING, needs="approve")],
+        counts={"waiting": 1, "total": 1},
+        now=100.0,
+    )
+    assert "\x1b[" not in out          # no ANSI escapes when color is off
+    assert "waiting 1" in out          # and the plain counts read normally
+
+
+def test_color_on_emits_ansi_without_losing_text():
+    sessions = [_s("local", vendor="claude", state=State.WAITING, needs="approve")]
+    out = render_snapshot(sessions, counts={"waiting": 1, "total": 1},
+                          now=100.0, color=True)
+    assert "\x1b[" in out              # ANSI escapes present
+    # The underlying text survives around the escape codes (alignment intact).
+    for token in ("claude", "waiting", "approve"):
+        assert token in out
+
+
+def test_state_glyphs_present_without_color():
+    # The glyph is a color-free channel: the board must read by shape alone,
+    # so every state's mark shows up even in plain text.
+    sessions = [
+        _s("local", project="a", state=State.ACTIVE),
+        _s("local", project="b", state=State.WAITING, needs="x"),
+        _s("local", project="c", state=State.IDLE),
+        _s("local", project="d", state=State.DONE),
+        _s("local", project="e", state=State.ERROR),
+    ]
+    out = render_snapshot(sessions, now=100.0)
+    for glyph in ("●", "◆", "✗", "○", "·"):
+        assert glyph in out

@@ -36,7 +36,7 @@ class TodoItem:
 @dataclass
 class SessionState:
     # --- identity ---
-    vendor: str                    # "claude" | "codex" | "grok"
+    vendor: str                    # "claude" | "codex" | "grok" | "gemini"
     session_id: str
     project: str                   # human label, usually the basename of cwd
     cwd: Optional[str] = None      # full working directory when known

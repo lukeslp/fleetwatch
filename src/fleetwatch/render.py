@@ -12,6 +12,7 @@ import time
 from typing import Iterable, Optional
 
 from .models import SessionState, State
+from .palette import paint, state_glyph, state_style, vendor_style
 
 
 # Order counts appear in the header line, matching the lifecycle in State.
@@ -47,25 +48,32 @@ def _truncate(text: str, width: int) -> str:
     return text[: width - 1] + "…"  # ellipsis
 
 
-def _header(counts: Optional[dict], now: float) -> list[str]:
+def _header(counts: Optional[dict], now: float, color: bool = False) -> list[str]:
     clock = time.strftime("%H:%M:%S", time.localtime(now))
+    head = paint("cyan", "fleetwatch", color)
+    clock_s = paint("grey58", clock, color)
     if not counts:
-        return [f"fleetwatch  {clock}"]
+        return [f"{head}  {clock_s}"]
     parts = []
     for name in _COUNT_ORDER:
         if name in counts:
-            parts.append(f"{name} {counts[name]}")
+            chunk = f"{name} {counts[name]}"
+            if name in State._value2member_map_:
+                chunk = paint(state_style(State(name)), chunk, color)
+            parts.append(chunk)
     total = counts.get("total")
     summary = "  ".join(parts)
     if total is not None:
-        summary = f"{summary}  (total {total})" if summary else f"total {total}"
-    return [f"fleetwatch  {clock}  {summary}".rstrip()]
+        total_s = paint("bold", f"total {total}", color)
+        summary = f"{summary}  ({total_s})" if summary else total_s
+    return [f"{head}  {clock_s}  {summary}".rstrip()]
 
 
 def render_snapshot(
     sessions: Iterable[SessionState],
     counts: Optional[dict] = None,
     now: Optional[float] = None,
+    color: bool = False,
 ) -> str:
     """Return a clean multi-line text table for ``fleetwatch --once``.
 
@@ -73,11 +81,16 @@ def render_snapshot(
     when the session needs attention, and the doing/needs text. A header with
     counts is included when ``counts`` is provided. An empty list renders a
     friendly placeholder.
+
+    With ``color=True`` the same state/vendor palette as the dashboard is
+    written as ANSI; the CLI turns it on only when stdout is a TTY, so piping
+    ``--once`` to a file or a log stays plain text. Column widths are computed
+    on the uncolored text, so alignment holds whether or not color is on.
     """
     sessions = list(sessions)
     now = time.time() if now is None else now
 
-    lines = _header(counts, now)
+    lines = _header(counts, now, color)
 
     if not sessions:
         lines.append("")
@@ -101,14 +114,14 @@ def render_snapshot(
         f"{host_head}"
         f"{'VENDOR':<{vendor_w}}  "
         f"{'PROJECT':<{project_w}}  "
-        f"{'STATE':<{state_w}}  "
+        f"  {'STATE':<{state_w}}  "  # two-space gutter under the status glyph
         f"{'IDLE':>4}  "
         f"{'!':<1}  "
         f"WHAT"
     )
     lines.append("")
     lines.append(header_row)
-    lines.append("-" * len(header_row))
+    lines.append("─" * len(header_row))
 
     for s in sessions:
         age = humanize_age(s.last_activity, now)
@@ -116,14 +129,28 @@ def render_snapshot(
         # Prefer the human-facing "needs" reason when attention is wanted,
         # otherwise the adapter's "doing" one-liner.
         what = s.needs if (s.needs_attention and s.needs) else s.doing
-        host_cell = f"{_truncate(s.source, host_w):<{host_w}}  " if show_host else ""
+
+        # Pad to width first, then paint, so the ANSI bytes never throw the
+        # column alignment off.
+        vendor_c = paint(vendor_style(s.vendor),
+                         f"{_truncate(s.vendor, vendor_w):<{vendor_w}}", color)
+        state_c = paint(state_style(s.state),
+                        f"{state_glyph(s.state)} {str(s.state):<{state_w}}", color)
+        age_c = paint("grey58", f"{age:>4}", color)
+        bang_c = (paint("bold bright_red", f"{bang:<1}", color)
+                  if s.needs_attention else f"{bang:<1}")
+        host_cell = ""
+        if show_host:
+            host_cell = paint("grey58",
+                              f"{_truncate(s.source, host_w):<{host_w}}", color) + "  "
+
         lines.append(
             f"{host_cell}"
-            f"{_truncate(s.vendor, vendor_w):<{vendor_w}}  "
+            f"{vendor_c}  "
             f"{_truncate(s.project, project_w):<{project_w}}  "
-            f"{str(s.state):<{state_w}}  "
-            f"{age:>4}  "
-            f"{bang:<1}  "
+            f"{state_c}  "
+            f"{age_c}  "
+            f"{bang_c}  "
             f"{_truncate(what, 60)}"
         )
 
